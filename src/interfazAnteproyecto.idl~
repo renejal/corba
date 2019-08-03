@@ -1,0 +1,61 @@
+module sop_corba{
+struct anteproyectoDTO{
+     string atrModalidad;
+     string atrTitulo;
+     long atrCodigo;
+     string atrNombreEstudiante1;
+     string atrNombreEstudiante2;
+     string atrNombreDirector;
+     string atrNombreCodirector;
+     string atrFechaRegistro;
+     string atrFechaAprobacion;
+     long atrConcepto;
+     long atrEstado;
+     long atrNumeroRevision;
+		
+		};
+interface interfazAnteProyectos{
+		
+	boolean registrarAnteproyecto(in anteproyectoDTO objAnteproyecto);
+	anteproyectoDTO buscarAnteproyecto(in string titulo);
+	};
+struct UsuarioDTO{
+			string id;
+			string nombre;
+			string apellido;
+			string usuario;
+			string password;
+			long tipo;
+		};
+interface interfazEstudiantesDirector{
+		
+	typedef sequence<anteproyectoDTO> ListAnteproyectos;
+	ListAnteproyectos listarAnteProyectos();
+	anteproyectoDTO buscarAnteproyecto(in long parCodigo);
+	};
+interface interfazEvaluador{
+		
+	boolean ingresarConcepto(in long parCodigoAnteproyecto,in string parConcepto);
+	};
+struct clsAsigEvaluadoresDTO{
+			string parNomEvaluador1;
+			string parConceptoEVa1;
+			string parFechaRevision1;
+			string parNomEvaluador2;
+			string parConceptoEVa2;
+			string parFechaRevision2;
+			
+		};
+
+interface interfazJefeDepartamento{
+		
+     boolean RegistarAnteProyectos(in anteproyectoDTO parObjAnteproyectoDTO);
+     boolean modificarEstadoAnteproyecto(in long parCodigo,in long parEstado);
+     boolean RegistrarUsuario(in UsuarioDTO parObjUsuario);
+     boolean AsignarEvaluadores(in clsAsigEvaluadoresDTO objAsigEvaluadores);  
+	};
+
+interface interfazUsuario{
+    long IniciarSesion(in string parUser, in string parPassword);
+};
+};

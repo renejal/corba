@@ -1,0 +1,12 @@
+module sop_corba{
+interface GestionAnteproyectos{
+		struct anteproyectoDTO{
+			string titulo;
+			string estudiante;
+			string director;
+			long estado;
+		};
+	void registrarAnteproyecto(in anteproyectoDTO objAnteproyecto,out boolean resultado);
+	boolean buscarAnteproyecto(in string titulo,out anteproyectoDTO objAnteproyectoResultado);
+	};
+};
