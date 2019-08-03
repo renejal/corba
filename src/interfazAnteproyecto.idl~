@@ -12,7 +12,6 @@ struct anteproyectoDTO{
      long atrConcepto;
      long atrEstado;
      long atrNumeroRevision;
-     long atrRolAnteproyecto;
 		
 		};
 interface interfazAnteProyectos{
@@ -39,12 +38,13 @@ interface interfazEvaluador{
 	boolean ingresarConcepto(in long parCodigoAnteproyecto,in string parConcepto);
 	};
 struct clsAsigEvaluadoresDTO{
-			string parNomEvaluador1;
-			string parConceptoEVa1;
-			string parFechaRevision1;
-			string parNomEvaluador2;
-			string parConceptoEVa2;
-			string parFechaRevision2;
+			log cod_anteproyecto;
+			string IdEvaluador1;
+			string ConceptoEVa1;
+			string FechaRevision1;
+			string idEvaluador2;
+			string ConceptoEVa2;
+			string FechaRevision2;
 			
 		};
 

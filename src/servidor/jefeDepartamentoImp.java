@@ -36,7 +36,10 @@ public class jefeDepartamentoImp extends interfazJefeDepartamentoPOA {
     @Override
     public boolean AsignarEvaluadores(clsAsigEvaluadoresDTO objAsigEvaluadores) {
          System.out.println("asignadon evaluadores");
-         return true;
+         anteproyectoDAO objAnteproyectoDAO = new anteproyectoDAO();
+           boolean res1 =  objAnteproyectoDAO.llenarDatosUsuario_anteproyecto(objAsigEvaluadores.cod_anteproyecto,2, objAsigEvaluadores.IdEvaluador1,objAsigEvaluadores.FechaRevision1,"");
+           boolean res2 =  objAnteproyectoDAO.llenarDatosUsuario_anteproyecto(objAsigEvaluadores.cod_anteproyecto,2, objAsigEvaluadores.IdEvaluador1,objAsigEvaluadores.FechaRevision1,"");
+           return (res1 = true && res2 == true);
         
     }
     

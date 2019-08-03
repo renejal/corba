@@ -26,6 +26,7 @@ public class ClienteDeObjetos{
             ref_servicios_jefe = interfazJefeDepartamentoHelper.narrow(ncRef.resolve_str("ServiciosJefe"));
             UsuarioDTO obj = new UsuarioDTO("100", "rene","jalvin", "rene","1299",1);
             //ref_servicios_jefe.RegistrarUsuario(obj);             //modalidad//titulo//idanterpoyecto//idcoordiandor//
+            //->>>>>>>>>>>>>>>>>>>>>>>>>>>>>para registar anteproyecto>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
             //anteproyectoDTO objAnteproyecto = new anteproyectoDTO(_atrModalidad, _atrTitulo,codigoAnteproyecto, _atrIdEstudiante1, _atrIdEstudiante2, _atrIdDirector, _atrIdCodirector, _atrFechaRegistro, _atrFechaAprobacion,concepto,estado,numRevicion);
             anteproyectoDTO objAnteproyecto = new anteproyectoDTO("mod",              "cor",          85,               "15",               "2",               "3",           "21",           "12/12/12",         "12/12/12",         2,       2,    145);
             ref_servicios_jefe.RegistarAnteProyectos(objAnteproyecto);
@@ -37,7 +38,7 @@ public class ClienteDeObjetos{
             ref_servicios_IniciarSesion = interfazUsuarioHelper.narrow(ncRefIniciarSesion.resolve_str("IniciarSesion"));
             //int a = ref_servicios_IniciarSesion.IniciarSesion("rene", "1299");
             //System.out.println("tipo usuario : "+a);
-            //->>>>>>>>>>>>>>>>>>>>>>>>>>>>>para registrar anteproyecto>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+            //->>>>>>>>>>>>>>>>>>>>>>>>>>>>>para registrar asignar evaluadores>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
             
             
             }catch (Exception e) {
