@@ -21,12 +21,12 @@ public class clsUsuarioDAO {
             PreparedStatement sentencia = null;
             String consulta = "insert into usuario(usuario.ID_USUARIO,usuario.NOMBRE,usuario.APELLIDO,usuario.user,usuario.PASSWORD,usuario.ROL)VALUES(?,?,?,?,?,?);";
             sentencia = conexionABaseDeDatos.getConnection().prepareStatement(consulta);
-            sentencia.setString(1, parUsuario.getId());
-            sentencia.setString(2, parUsuario.getNombre());
-            sentencia.setString(3, parUsuario.getApellido());
-            sentencia.setString(4, parUsuario.getUsuario());
-            sentencia.setString(5, parUsuario.getPassword());
-            sentencia.setInt(6,parUsuario.getTipo());
+            sentencia.setString(1, parUsuario.id);
+            sentencia.setString(2, parUsuario.nombre);
+            sentencia.setString(3, parUsuario.apellido);
+            sentencia.setString(4, parUsuario.usuario);
+            sentencia.setString(5, parUsuario.password);
+            sentencia.setInt(6,parUsuario.tipo);
             resultado = sentencia.executeUpdate(); 
             sentencia.close();
             conexionABaseDeDatos.desconectar();

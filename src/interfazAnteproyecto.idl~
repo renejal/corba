@@ -12,6 +12,7 @@ struct anteproyectoDTO{
      long atrConcepto;
      long atrEstado;
      long atrNumeroRevision;
+     long atrRolAnteproyecto;
 		
 		};
 interface interfazAnteProyectos{

@@ -9,7 +9,12 @@ public class jefeDepartamentoImp extends interfazJefeDepartamentoPOA {
     public boolean RegistarAnteProyectos(anteproyectoDTO parObjAnteproyectoDTO) {
         System.out.println("registrando anteproyectos");
         anteproyectoDAO objAnteproyectoDAO = new anteproyectoDAO();
-       return objAnteproyectoDAO.registrarAnteproyecto(parObjAnteproyectoDTO);
+        objAnteproyectoDAO.registrarAnteproyecto(parObjAnteproyectoDTO);     
+        objAnteproyectoDAO.llenarDatosUsuario_anteproyecto(parObjAnteproyectoDTO.atrCodigo,4, parObjAnteproyectoDTO.atrIdCodirector,parObjAnteproyectoDTO.atrFechaAprobacion,parObjAnteproyectoDTO.atrFechaRegistro);
+        objAnteproyectoDAO.llenarDatosUsuario_anteproyecto(parObjAnteproyectoDTO.atrCodigo,3, parObjAnteproyectoDTO.atrIdDirector,parObjAnteproyectoDTO.atrFechaAprobacion,parObjAnteproyectoDTO.atrFechaRegistro);
+        objAnteproyectoDAO.llenarDatosUsuario_anteproyecto(parObjAnteproyectoDTO.atrCodigo,1, parObjAnteproyectoDTO.atrIdEstudiante1,parObjAnteproyectoDTO.atrFechaAprobacion,parObjAnteproyectoDTO.atrFechaRegistro);
+        objAnteproyectoDAO.llenarDatosUsuario_anteproyecto(parObjAnteproyectoDTO.atrCodigo,1, parObjAnteproyectoDTO.atrIdEstudiante2,parObjAnteproyectoDTO.atrFechaAprobacion,parObjAnteproyectoDTO.atrFechaRegistro);
+        return true;
     }
 
     @Override

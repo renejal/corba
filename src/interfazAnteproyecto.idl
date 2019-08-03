@@ -3,10 +3,10 @@ struct anteproyectoDTO{
      string atrModalidad;
      string atrTitulo;
      long atrCodigo;
-     string atrNombreEstudiante1;
-     string atrNombreEstudiante2;
-     string atrNombreDirector;
-     string atrNombreCodirector;
+     string atrIdEstudiante1;
+     string atrIdEstudiante2;
+     string atrIdDirector;
+     string atrIdCodirector;
      string atrFechaRegistro;
      string atrFechaAprobacion;
      long atrConcepto;

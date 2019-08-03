@@ -24,20 +24,21 @@ public class ClienteDeObjetos{
             //->>>>>>>>>>>>>>>>>>>>>>>>>>>para REgistra usuario>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
             NamingContextExt ncRef = NamingContextExtHelper.narrow(objRef);
             ref_servicios_jefe = interfazJefeDepartamentoHelper.narrow(ncRef.resolve_str("ServiciosJefe"));
-            UsuarioDTO obj = new UsuarioDTO("90", "rene","jalvin", "rene","1299",1);
-            //ref_servicios_jefe.RegistrarUsuario(obj);
-           // anteproyectoDTO objAnteproyecto = new anteproyectoDTO("modalidad","corba",,"1","2","3","4","12/12/12","12/12/12", 2, 2, 123);
-            //ref_servicios_jefe.RegistarAnteProyectos(objAnteproyecto);
+            UsuarioDTO obj = new UsuarioDTO("100", "rene","jalvin", "rene","1299",1);
+            //ref_servicios_jefe.RegistrarUsuario(obj);             //modalidad//titulo//idanterpoyecto//idcoordiandor//
+            //anteproyectoDTO objAnteproyecto = new anteproyectoDTO(_atrModalidad, _atrTitulo,codigoAnteproyecto, _atrIdEstudiante1, _atrIdEstudiante2, _atrIdDirector, _atrIdCodirector, _atrFechaRegistro, _atrFechaAprobacion,concepto,estado,numRevicion,rol);
+            anteproyectoDTO objAnteproyecto = new anteproyectoDTO("mod",              "cor",          85,               "15",               "2",               "3",           "21",           "12/12/12",         "12/12/12",         2,       2,    145,         3);
+            ref_servicios_jefe.RegistarAnteProyectos(objAnteproyecto);
             //->
            
             //->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>para iniciar sesion>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
              org.omg.CORBA.Object objRefIniciarSesion = orb.resolve_initial_references("NameService");
             NamingContextExt ncRefIniciarSesion = NamingContextExtHelper.narrow(objRefIniciarSesion);
             ref_servicios_IniciarSesion = interfazUsuarioHelper.narrow(ncRefIniciarSesion.resolve_str("IniciarSesion"));
-            int a = ref_servicios_IniciarSesion.IniciarSesion("rene", "1299");
-            System.out.println("tipo usuario : "+a);
+            //int a = ref_servicios_IniciarSesion.IniciarSesion("rene", "1299");
+            //System.out.println("tipo usuario : "+a);
             //->>>>>>>>>>>>>>>>>>>>>>>>>>>>>para registrar anteproyecto>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-           
+            
             
             }catch (Exception e) {
           System.out.println("ERROR : " + e) ;
