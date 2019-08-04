@@ -10,7 +10,6 @@ create table ANTEPROYECTO
    ESTADO               varchar(30) default 'no aprobado',
    FECHAREGISTRO        varchar(20) not null,
    FECHAAPROBACION      varchar(20),
-   CONCEPTO             numeric(8,0) default 2,
    primary key (ID_ANTEPROYECTO)
 );
 
