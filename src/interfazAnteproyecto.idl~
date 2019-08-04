@@ -35,10 +35,10 @@ interface interfazEstudiantesDirector{
 	};
 interface interfazEvaluador{
 		
-	boolean ingresarConcepto(in long parCodigoAnteproyecto,in string parConcepto);
+	boolean ingresarConceptoEvaluador(in long idUsuario, in long parCodigoAnteproyecto,in int parConcepto);
 	};
 struct clsAsigEvaluadoresDTO{
-			log cod_anteproyecto;
+			long cod_anteproyecto;
 			string IdEvaluador1;
 			string ConceptoEVa1;
 			string FechaRevision1;

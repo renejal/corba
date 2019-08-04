@@ -10,6 +10,7 @@ public class ClienteDeObjetos{
     //static interfazAnteProyectosOperations ref;
     static interfazJefeDepartamentoOperations ref_servicios_jefe;
     static interfazUsuarioOperations ref_servicios_IniciarSesion;
+    static interfazEvaluadorOperations ref_asignar_evaluadores;
     public static void main(String args[]){
         try{
             // crea e inicia el ORB
@@ -29,16 +30,25 @@ public class ClienteDeObjetos{
             //->>>>>>>>>>>>>>>>>>>>>>>>>>>>>para registar anteproyecto>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
             //anteproyectoDTO objAnteproyecto = new anteproyectoDTO(_atrModalidad, _atrTitulo,codigoAnteproyecto, _atrIdEstudiante1, _atrIdEstudiante2, _atrIdDirector, _atrIdCodirector, _atrFechaRegistro, _atrFechaAprobacion,concepto,estado,numRevicion);
             anteproyectoDTO objAnteproyecto = new anteproyectoDTO("mod",              "cor",          85,               "15",               "2",               "3",           "21",           "12/12/12",         "12/12/12",         2,       2,    145);
-            ref_servicios_jefe.RegistarAnteProyectos(objAnteproyecto);
-            //->
-           
+            //ref_servicios_jefe.RegistarAnteProyectos(objAnteproyecto);
+            //->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>para AsignarEvaluadores>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+            clsAsigEvaluadoresDTO objAsigEvaluadores = new clsAsigEvaluadoresDTO(85, "20", "2", "12/12/12", "21", "2", "12/12/12");
+            ref_servicios_jefe.AsignarEvaluadores(objAsigEvaluadores);
             //->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>para iniciar sesion>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
              org.omg.CORBA.Object objRefIniciarSesion = orb.resolve_initial_references("NameService");
             NamingContextExt ncRefIniciarSesion = NamingContextExtHelper.narrow(objRefIniciarSesion);
             ref_servicios_IniciarSesion = interfazUsuarioHelper.narrow(ncRefIniciarSesion.resolve_str("IniciarSesion"));
             //int a = ref_servicios_IniciarSesion.IniciarSesion("rene", "1299");
             //System.out.println("tipo usuario : "+a);
-            //->>>>>>>>>>>>>>>>>>>>>>>>>>>>>para registrar asignar evaluadores>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+            //->>>>>>>>>>>>>>>>>>>>>>>>>>>>>modificar concepto>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+            org.omg.CORBA.Object objRefAsignarEvaluadores = orb.resolve_initial_references("NameService");
+            NamingContextExt ncRefAsignarEvaluadores = NamingContextExtHelper.narrow(objRefAsignarEvaluadores);
+              ref_asignar_evaluadores = interfazEvaluadorHelper.narrow(ncRefAsignarEvaluadores.resolve_str("serviciosEvaluador"));
+              //ref_asignar_evaluadores.ingresarConceptoEvaluador(3,85,1);
+            //>>>>>>>>>>>>>>>>>>>>>>>>>>>modificar concepto>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+            
+            
+            
             
             
             }catch (Exception e) {

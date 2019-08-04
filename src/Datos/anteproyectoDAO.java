@@ -25,41 +25,6 @@ public class anteproyectoDAO {
             sentencia.setString(4, parUsuario.atrFechaRegistro);
             resultado = sentencia.executeUpdate();
              conexionABaseDeDatos.desconectar();
-            /*
-            sentencia.close();
-            //otra sentencia tomando como usuario principal el codigo de CODIRECTOR
-            sentencia = null;
-            consulta = "INSERT into usuarios_anteproyecto(usuarios_anteproyecto.ID_ANTEPROYECTO,usuarios_anteproyecto.ROL_ANTEPROYECTO,\n" +
-"                                        usuarios_anteproyecto.ID_USUARIO,usuarios_anteproyecto.FECHAREGISTRO,usuarios_anteproyecto.FECHAAPROBACION)VALUES(?,?,?,?,?);";
-            sentencia = conexionABaseDeDatos.getConnection().prepareStatement(consulta);
-            sentencia.setInt(1, parUsuario.atrCodigo);
-             sentencia.setInt(2,4);
-            sentencia.setString(3, parUsuario.atrIdCodirector);
-            sentencia.setString(4, parUsuario.atrFechaAprobacion); 
-            sentencia.setString(5, parUsuario.atrFechaRegistro);
-           conexionABaseDeDatos.desconectar();
-           resultado2 = sentencia.executeUpdate(); 
-            this.llenarDatosUsuario_anteproyecto(parUsuario.atrCodigo,parUsuario.atrRolAnteproyecto,parUsuario.atrIdDirector,parUsuario.atrFechaRegistro,parUsuario.atrFechaAprobacion);
-            /*
-            
-            resultado2 = sentencia.executeUpdate();
-            //otra sentencia tomando como usuario principal el codigo de director
-            sentencia.setString(3, parUsuario.atrIdDirector);
-            resultado3 = sentencia.executeUpdate();
-            System.out.println("paso1");
-            //otra sentencia tomando como usuario principal el codigo de estudiante1
-            sentencia.setString(1, parUsuario.atrIdEstudiante1);
-            resultado4 = sentencia.executeUpdate();
-            System.out.println("paso1");
-            //otra sentencia tomando como usuario principal el codigo de estudiante2
-            sentencia.setString(1, parUsuario.atrIdEstudiante2);
-            resultado4 = sentencia.executeUpdate();
-            System.out.println("paso1");
-            //otra sentencia tomando como usuario principal el codigo de evaluador
-            sentencia.setString(2, parUsuario.atrIdEstudiante2);
-            resultado5 = sentencia.executeUpdate();
-            System.out.println("paso1");
-            */
             
 
         } catch (SQLException e) {
@@ -68,7 +33,7 @@ public class anteproyectoDAO {
         
         return resultado == 1;
     }
-    public boolean llenarDatosUsuario_anteproyecto(int parCodigoAnteproyecto,int parCodigoRol, String parCodigoUsuario,String parFechaRevision, String parFecharRegistro){
+    public boolean llenarDatosUsuario_anteproyecto(int parCodigoAnteproyecto,int parCodigoRol, String parCodigoUsuario,String parFechaRevision){
         System.out.println("codigoAnteproyecto-DAO2:"+parCodigoAnteproyecto);  
         conexionABaseDeDatos.conectar();
         int resultado=-1;

@@ -25,7 +25,8 @@ public class ServidorDeObjetos {
       jefeDepartamentoImp convref = new jefeDepartamentoImp();
       //***
       iniciarSesionImp IniciarSesionRef = new iniciarSesionImp();
-      
+      //**
+     
        
       //*** obtiene la referencia del objeto desde el servant ***
       org.omg.CORBA.Object obj = rootpoa.servant_to_reference(convref);
@@ -52,10 +53,28 @@ public class ServidorDeObjetos {
       String name2 = "IniciarSesion";
       NameComponent path2[] = ncrefIniciarSesion.to_name( name2 );
       ncref.rebind(path2, hrefIniciarSesion);
-      System.out.println("El Servidor esta listo y esperandosh ...");
+    
 
       // esperan por las invocaciones desde los clientes
+      //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>para modificar concepto>>>>>>>>>>>>>>>
+      evaluadorImp convrefModificarConceptor = new evaluadorImp();
+     
+       org.omg.CORBA.Object objModConcepto = rootpoa.servant_to_reference(convrefModificarConceptor);
+      interfazEvaluador hrefEvaluador = interfazEvaluadorHelper.narrow(objModConcepto);
+      
+      org.omg.CORBA.Object objrefEvaluador =
+          orb.resolve_initial_references("NameService");
+      
+       NamingContextExt ncrefEvaludor = NamingContextExtHelper.narrow(objrefEvaluador);
+      
+      String nameEvaluador = "serviciosEvaluador";
+      NameComponent path3[] = ncrefEvaludor.to_name( nameEvaluador );
+      ncref.rebind(path3, hrefEvaluador);
+      
+      
+     System.out.println("El Servidor esta listo y esperandosh ...");
       orb.run();
+      
     } 
 	
       catch (Exception e) {
