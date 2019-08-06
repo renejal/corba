@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import sop_corba.anteproyectoDTO;
 import sop_corba.interfazEstudiantesDirectorPOA;
 
-public class EstudianteImp extends interfazEstudiantesDirectorPOA {
+public class estudianteImp extends interfazEstudiantesDirectorPOA {
 
     @Override
     public anteproyectoDTO[] listarAnteProyectos() {

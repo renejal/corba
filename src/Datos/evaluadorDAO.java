@@ -13,7 +13,7 @@ public class evaluadorDAO {
     public evaluadorDAO(){
         conexionABaseDeDatos = new ConexionBD();
 }
-     public boolean ingresarComcepto(int parIdUsuario, int parCodAnteproyecto, int parConcepto) 
+     public boolean ingresarCocepto(int parIdUsuario, int parCodAnteproyecto, int parConcepto) 
     {
       
         conexionABaseDeDatos.conectar();
