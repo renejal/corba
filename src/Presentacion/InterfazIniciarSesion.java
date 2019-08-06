@@ -6,7 +6,7 @@
 package Presentacion;
 
 import Controlador.clsControlador;
-import Controlador.interfazControlador;
+//import Controlador.interfazControlador;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.io.IOException;
@@ -14,6 +14,23 @@ import java.rmi.RemoteException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import org.omg.CORBA.ORB;
+import org.omg.CosNaming.NamingContextExt;
+import org.omg.CosNaming.NamingContextExtHelper;
+import org.omg.CosNaming.NamingContextPackage.CannotProceed;
+import org.omg.CosNaming.NamingContextPackage.InvalidName;
+import org.omg.CosNaming.NamingContextPackage.NotFound;
+import sop_corba.UsuarioDTO;
+import sop_corba.anteproyectoDTO;
+import sop_corba.clsAsigEvaluadoresDTO;
+import sop_corba.interfazEstudiantesDirectorHelper;
+import sop_corba.interfazEstudiantesDirectorOperations;
+import sop_corba.interfazEvaluadorHelper;
+import sop_corba.interfazEvaluadorOperations;
+import sop_corba.interfazJefeDepartamentoHelper;
+import sop_corba.interfazJefeDepartamentoOperations;
+import sop_corba.interfazUsuarioHelper;
+import sop_corba.interfazUsuarioOperations;
 
 /**
  *
@@ -24,19 +41,23 @@ public class InterfazIniciarSesion extends javax.swing.JFrame {
     /**
      * Creates new form NewJFrame
      */
-    
+    static interfazJefeDepartamentoOperations ref_servicios_jefe;
+    static interfazUsuarioOperations ref_servicios_IniciarSesion;
+    static interfazEvaluadorOperations ref_asignar_evaluadores;
+    static interfazEstudiantesDirectorOperations ref_estudiantes;
     private final static int ESTUDIANTE_DIRECTOR = 1;
     private final static int EVALUADOR = 2;
     private final static int JEFE_DEPARTAMENTO = 3;
     
-    interfazControlador objControlador = null;
+    
+    //interfazControlador objControlador = null;
     InterfazAdministrador InterfazAdministrador = null;
     InterfazEstudianteDirector InterfazEstudianteDirector = null;
     InterfazEvaluador InterfazEvaluador = null;
     
     public InterfazIniciarSesion() throws RemoteException {
         centrarVentanaLogin();
-        this.objControlador = new clsControlador();
+        //this.objControlador = new clsControlador();
         initComponents();
     }
 
@@ -52,16 +73,18 @@ public class InterfazIniciarSesion extends javax.swing.JFrame {
         int tipoDeUsuario = 0;
         String usuario = this.jtfUsuario.getText().trim();
         String contrasenia = this.jtfContrasenia.getText().trim();
-        tipoDeUsuario = this.objControlador.IniciarSesion(usuario, contrasenia);
+        tipoDeUsuario = ref_servicios_IniciarSesion.IniciarSesion(usuario,contrasenia);
         switch(tipoDeUsuario){
             case ESTUDIANTE_DIRECTOR:
                 this.setVisible(false);
                 this.InterfazEstudianteDirector = new InterfazEstudianteDirector();
+                InterfazEstudianteDirector.iniRef(ref_estudiantes);
                 this.InterfazEstudianteDirector.setVisible(true);
                 break;
             case EVALUADOR:
                 this.setVisible(false);
                 this.InterfazEvaluador = new InterfazEvaluador();
+                
                 this.InterfazEvaluador.setVisible(true);
                 break;
             case JEFE_DEPARTAMENTO:
@@ -225,32 +248,45 @@ public class InterfazIniciarSesion extends javax.swing.JFrame {
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(InterfazIniciarSesion.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(InterfazIniciarSesion.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(InterfazIniciarSesion.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(InterfazIniciarSesion.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
+    public static void main(String args[]) throws NotFound, CannotProceed, InvalidName, org.omg.CORBA.ORBPackage.InvalidName {
+        // crea e inicia el ORB
+            // crea e iniciia el ORB
+            String[] vector = new String[]{"-ORBInitialHost", "localhost", "-ORBInitialPort", "2020"};
+            ORB orb = ORB.init(vector, null);
+
+            // obtiene la base del naming context
+            org.omg.CORBA.Object objRef = 
+            orb.resolve_initial_references("NameService");
+            
+            //->>>>>>>>>>>>>>>>>>>>>>>>>>>para REgistra usuario>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+            NamingContextExt ncRef = NamingContextExtHelper.narrow(objRef);
+            ref_servicios_jefe = interfazJefeDepartamentoHelper.narrow(ncRef.resolve_str("ServiciosJefe"));
+           // UsuarioDTO obj = new UsuarioDTO("100", "rene","jalvin", "rene","1299",1);
+            //ref_servicios_jefe.RegistrarUsuario(obj);             //modalidad//titulo//idanterpoyecto//idcoordiandor//
+            //->>>>>>>>>>>>>>>>>>>>>>>>>>>>>para registar anteproyecto>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+            //anteproyectoDTO objAnteproyecto = new anteproyectoDTO(_atrModalidad, _atrTitulo,codigoAnteproyecto, _atrIdEstudiante1, _atrIdEstudiante2, _atrIdDirector, _atrIdCodirector, _atrFechaRegistro, _atrFechaAprobacion,concepto,estado,numRevicion);
+            anteproyectoDTO objAnteproyecto = new anteproyectoDTO("mod",              "cor",          85,               "15",               "2",               "3",           "21",           "12/12/12",         "12/12/12",         2,       2,    145);
+            //ref_servicios_jefe.RegistarAnteProyectos(objAnteproyecto);
+            //->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>para AsignarEvaluadores>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+            clsAsigEvaluadoresDTO objAsigEvaluadores = new clsAsigEvaluadoresDTO(85, "20", "2", "12/12/12", "21", "2", "12/12/12");
+            //ref_servicios_jefe.AsignarEvaluadores(objAsigEvaluadores);
+            //->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>para iniciar sesion>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+             org.omg.CORBA.Object objRefIniciarSesion = orb.resolve_initial_references("NameService");
+            NamingContextExt ncRefIniciarSesion = NamingContextExtHelper.narrow(objRefIniciarSesion);
+            ref_servicios_IniciarSesion = interfazUsuarioHelper.narrow(ncRefIniciarSesion.resolve_str("IniciarSesion"));
+            //int a = ref_servicios_IniciarSesion.IniciarSesion("rene", "1299");
+            //System.out.println("tipo usuario : "+a);
+            //->>>>>>>>>>>>>>>>>>>>>>>>>>>>>modificar concepto>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+            org.omg.CORBA.Object objRefAsignarEvaluadores = orb.resolve_initial_references("NameService");
+            NamingContextExt ncRefAsignarEvaluadores = NamingContextExtHelper.narrow(objRefAsignarEvaluadores);
+              ref_asignar_evaluadores = interfazEvaluadorHelper.narrow(ncRefAsignarEvaluadores.resolve_str("serviciosEvaluador"));
+              //ref_asignar_evaluadores.ingresarConceptoEvaluador(3,85,1);
+            //>>>>>>>>>>>>>>>>>>>>>>>>>>>listarAnteproyectos>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+             org.omg.CORBA.Object objRefListAnteproyectos = orb.resolve_initial_references("NameService");
+            NamingContextExt ncRefListaAnteproyectos = NamingContextExtHelper.narrow(objRefListAnteproyectos);
+              ref_estudiantes = interfazEstudiantesDirectorHelper.narrow(ncRefListaAnteproyectos.resolve_str("serviciosEstudianes"));
+              //ref_estudiantes.listarAnteProyectos();
+            
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {

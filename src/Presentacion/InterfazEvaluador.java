@@ -15,11 +15,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
-import sop_rmi.AnteproyectoDTO;
-import sop_rmi.clsEstudianteDirector;
-import sop_rmi.clsEvaluador;
-import sop_rmi.interfazEstudianteDirector;
-import sop_rmi.interfazEvaluador;
+import sop_corba.*;
+
 
 /**
  *
@@ -41,8 +38,8 @@ public class InterfazEvaluador extends javax.swing.JFrame {
     String nombreColumnasCodigoTitutlo[] = {"CÓDIGO", "TITULO"};
     String rutaAnteproyecto = "src/Datos/anteProyectos.txt";
     String rutaAnteproyectoCodigoTitulo = "src/Datos/infoAnteproyectosCodigoTitulo.txt";
-    interfazEvaluador objEvaluador = null;
-    interfazEstudianteDirector objEstudianteDirector = null;
+     interfazEvaluador objEvaluador = null;
+     //interfazEstudianteDirector objEstudianteDirector = null;
     
     public InterfazEvaluador() throws RemoteException {
         this.modeloTablaCodigoTitulo = new DefaultTableModel();        
@@ -50,8 +47,8 @@ public class InterfazEvaluador extends javax.swing.JFrame {
         this.modeloDatosAnteproyectoL = new DefaultTableModel();
         initComponents();
         this.lblInfoResultado1.setVisible(false);
-        this.objEvaluador = new clsEvaluador();
-        objEstudianteDirector = new clsEstudianteDirector();
+        //this.objEvaluador = new clsEvaluador();
+        // objEstudianteDirector = new clsEstudianteDirector();
     }
     
     public void cargarInfoAnteproyectos(DefaultTableModel parModelo, String ruta, int nroColumnas, String[] vectorColumnas) 
@@ -84,7 +81,7 @@ public class InterfazEvaluador extends javax.swing.JFrame {
         boolean resultado = false;
         int codigoAnteproyecto = Integer.parseInt(this.jtfCodigoAI.getText());
         String concepto = this.cbConceptosI.getSelectedItem().toString().trim();
-        resultado = this.objEvaluador.ingresarConcepto(codigoAnteproyecto, concepto);
+       // resultado = this.objEvaluador.ingresarConcepto(codigoAnteproyecto, concepto);
         this.mostrarResultadoDeIngresarConcepto(resultado, codigoAnteproyecto);
     }
     public void mostrarResultadoDeIngresarConcepto(boolean pResultado, int pCodigoAnteproyecto){
@@ -112,7 +109,7 @@ public class InterfazEvaluador extends javax.swing.JFrame {
     private void buscarAnteproyecto() throws RemoteException{
         boolean resultado = false;
         int codigoAnteproyecto = Integer.parseInt(this.jtfCodigoAB.getText());
-        AnteproyectoDTO objAnteproyecto = this.objEstudianteDirector.buscarAnteproyecto(codigoAnteproyecto);
+        anteproyectoDTO objAnteproyecto =null; //this.objEstudianteDirector.buscarAnteproyecto(codigoAnteproyecto);
         if(objAnteproyecto != null){
             this.mostrarDatosEnTabla(objAnteproyecto);
             resultado = true;
@@ -136,15 +133,15 @@ public class InterfazEvaluador extends javax.swing.JFrame {
         }
         return resultado;
     }
-    private void mostrarDatosEnTabla(AnteproyectoDTO pObjAnteproyecto) {
+    private void mostrarDatosEnTabla(anteproyectoDTO pObjAnteproyecto) {
         Object[] objDatosAnteproyecto;
         objDatosAnteproyecto = new Object[]{
-            pObjAnteproyecto.getAtrModalidad(), pObjAnteproyecto.getAtrTitulo(),
-            pObjAnteproyecto.getAtrCodigo(), pObjAnteproyecto.getAtrNombreEstudiante1(),
-            pObjAnteproyecto.getAtrNombreEstudiante2(), pObjAnteproyecto.getAtrNombreDirector(),
-            pObjAnteproyecto.getAtrNombreCodirector(), pObjAnteproyecto.getAtrFechaRegistro(),
-            pObjAnteproyecto.getAtrFechaAprobacion(), pObjAnteproyecto.getAtrConcepto(),
-            pObjAnteproyecto.getAtrEstado(), pObjAnteproyecto.getAtrNumeroRevision()
+            pObjAnteproyecto.atrModalidad, pObjAnteproyecto.atrTitulo,
+            pObjAnteproyecto.atrCodigo, pObjAnteproyecto.atrIdEstudiante1,
+            pObjAnteproyecto.atrIdEstudiante2, pObjAnteproyecto.atrIdDirector,
+            pObjAnteproyecto.atrIdCodirector, pObjAnteproyecto.atrFechaRegistro,
+            pObjAnteproyecto.atrFechaAprobacion, pObjAnteproyecto.atrConcepto,
+            pObjAnteproyecto.atrEstado, pObjAnteproyecto.atrNumeroRevision
         };
         this.modeloDatosAnteproyectoB.addRow(objDatosAnteproyecto);
     }
@@ -756,4 +753,10 @@ public class InterfazEvaluador extends javax.swing.JFrame {
     private javax.swing.JTable tblDatosAnteproyectos;
     private javax.swing.JTable tblListadoAnteproyectos;
     // End of variables declaration//GEN-END:variables
+
+    private class objEstudianteDirector {
+
+        public objEstudianteDirector() {
+        }
+    }
 }

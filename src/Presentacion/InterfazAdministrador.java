@@ -16,17 +16,17 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
-import sop_rmi.AnteproyectoDTO;
-import sop_rmi.UsuarioDTO;
-import sop_rmi.clsAsigEvaluadoresDTO;
-import sop_rmi.clsEstudianteDirector;
-import sop_rmi.clsJefeDepartamento;
-
+import sop_corba.anteproyectoDTO;
+import sop_corba.*;
+import sop_corba.clsAsigEvaluadoresDTO;
 /**
  *
  * @author Angélica
  */
 public final class InterfazAdministrador extends javax.swing.JFrame {
+    
+    
+    
     /**
      * Creates new form MenuAdministrador
      */
@@ -45,8 +45,10 @@ public final class InterfazAdministrador extends javax.swing.JFrame {
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc="Atributos">
-    private final clsJefeDepartamento objJefeDepartamento;
-    private final clsEstudianteDirector objEstudianteDirector;
+    //private final clsJefeDepartamento objJefeDepartamento;
+    //private final clsEstudianteDirector objEstudianteDirector;
+     static interfazJefeDepartamentoOperations ref_servicios_jefe;
+     static interfazEstudiantesDirectorOperations ref_estudiantes;
     
     DefaultTableModel modeloTablaCodigoTituloA;
     DefaultTableModel modeloTablaCodigoTituloB;
@@ -70,8 +72,8 @@ public final class InterfazAdministrador extends javax.swing.JFrame {
         initComponents();
         this.jtfCodigoAA.setBackground(Color.LIGHT_GRAY);
         this.jtfCodigoAB.setBackground(Color.LIGHT_GRAY);
-        this.objJefeDepartamento = new clsJefeDepartamento();
-        this.objEstudianteDirector = new clsEstudianteDirector();
+        //this.objJefeDepartamento = new clsJefeDepartamento();
+        //this.objEstudianteDirector = new clsEstudianteDirector();
     }
     // </editor-fold> 
 
@@ -85,16 +87,19 @@ public final class InterfazAdministrador extends javax.swing.JFrame {
         String nombreEvaluador2 = this.jtfNombreSeEvaluador.getText();
         String concepto2 = (String)this.cbTiposConceptos2.getSelectedItem();
         String fechaRevision2 = this.jtfFechaSeRevision.getText();
-        clsAsigEvaluadoresDTO objAsignarEvaluador = new clsAsigEvaluadoresDTO(codigoAnteproyecto, 
-                                                                               nombreEvaluador1, concepto1, fechaRevision1,
-                                                                               nombreEvaluador2, concepto2, fechaRevision2);
-        resultado = this.objJefeDepartamento.AsignarEvaluadores(objAsignarEvaluador);
+        clsAsigEvaluadoresDTO obj = new clsAsigEvaluadoresDTO(codigoAnteproyecto,nombreEvaluador1,concepto1, fechaRevision1,nombreEvaluador2, concepto2, fechaRevision2);
+        resultado = ref_servicios_jefe.AsignarEvaluadores(obj);
         this.mostrarResultadoDeAsignar(resultado, codigoAnteproyecto);
+    }
+    public void initRef(interfazJefeDepartamentoOperations ref ,interfazEstudiantesDirectorOperations refEstudiantes){
+        ref_servicios_jefe = ref;
+         ref_estudiantes = refEstudiantes;
+        
     }
     private void buscarAnteproyecto() throws RemoteException{
         boolean resultado = false;
         int codigoAnteproyecto = Integer.parseInt(this.jtfCodigoAB.getText());
-        AnteproyectoDTO objAnteproyecto = this.objEstudianteDirector.buscarAnteproyecto(codigoAnteproyecto);
+        anteproyectoDTO objAnteproyecto =ref_estudiantes.buscarAnteproyecto(codigoAnteproyecto);
         if(objAnteproyecto != null){
             this.mostrarDatosEnTabla(objAnteproyecto);
             resultado = true;
@@ -107,7 +112,7 @@ public final class InterfazAdministrador extends javax.swing.JFrame {
         codigo = Integer.parseInt(this.jtfCodigoAM.getText());
         String cadenaConcepto = this.cbConceptosM.getSelectedItem().toString().trim();
         concepto = Integer.parseInt("" +cadenaConcepto.charAt(0));
-        resultado = this.objJefeDepartamento.modificarEstadoAnteproyecto(codigo, concepto);
+        resultado = ref_servicios_jefe.modificarEstadoAnteproyecto(codigo, concepto);
         mostrarResultadoDeModificar(resultado, codigo);
     }
     private void registrarAnteproyecto() throws RemoteException{
@@ -127,28 +132,28 @@ public final class InterfazAdministrador extends javax.swing.JFrame {
         concepto = this.obtenerCampoConcepto();
         estado = this.obtenerCampoEstado();
         numeroRevision = Integer.parseInt(this.jtfNroRevision.getText().trim());
-        AnteproyectoDTO objAnteproyecto = new AnteproyectoDTO(modalidad, titulo, codigo, nombreEstudiante1,
+        anteproyectoDTO objAnteproyecto = new anteproyectoDTO(modalidad, titulo, codigo, nombreEstudiante1,
                                                               nombreEstudiante2, nombreDirector, nombreCodirector,
                                                               fechaRegistro, fechaAprobacion, concepto, estado, numeroRevision);
-        resultado = this.objJefeDepartamento.RegistarAnteProyectos(objAnteproyecto);
+        resultado = ref_servicios_jefe.RegistarAnteProyectos(objAnteproyecto);
         mostrarResultadoDeRegistrarAnt(resultado, codigo);
     }
     private void registrarUsuario() throws RemoteException{
         String nombre = "", apellido = "", usuario = "", contrasenia = "";
-        int ID = 0, tipoDeUsuario = 0;
+        String ID = ""; int tipoDeUsuario = 0;
         boolean resultado = false;
         
-        ID = Integer.parseInt(this.jtfID.getText().trim());
+        ID = this.jtfID.getText().trim();
         nombre = this.jtfNombre.getText().trim();
         apellido = this.jtfApellido.getText().trim();
         usuario = this.jtfUsuario.getText().trim();
         contrasenia = this.jtfContrasenia.getText().trim();
         tipoDeUsuario = obtenerCampoTipoUsuario();
         
-        UsuarioDTO objUsuario = new UsuarioDTO(ID, nombre, apellido, usuario,
-                                                    contrasenia, tipoDeUsuario);
-        resultado = this.objJefeDepartamento.RegistrarUsuario(objUsuario);
-        mostrarResultadoDeRegistrarUsuario(resultado, ID);
+        UsuarioDTO objUsuario = new UsuarioDTO(ID,nombre, apellido, usuario,
+                                                    contrasenia,tipoDeUsuario);
+        resultado = ref_servicios_jefe.RegistrarUsuario(objUsuario);
+        mostrarResultadoDeRegistrarUsuario(resultado,Integer.parseInt(ID));
     }
     // </editor-fold>
     
@@ -227,15 +232,15 @@ public final class InterfazAdministrador extends javax.swing.JFrame {
         b.close();   
     }
 
-    private void mostrarDatosEnTabla(AnteproyectoDTO pObjAnteproyecto) {
+    private void mostrarDatosEnTabla(anteproyectoDTO pObjAnteproyecto) {
         Object[] objDatosAnteproyecto;
         objDatosAnteproyecto = new Object[]{
-            pObjAnteproyecto.getAtrModalidad(), pObjAnteproyecto.getAtrTitulo(),
-            pObjAnteproyecto.getAtrCodigo(), pObjAnteproyecto.getAtrNombreEstudiante1(),
-            pObjAnteproyecto.getAtrNombreEstudiante2(), pObjAnteproyecto.getAtrNombreDirector(),
-            pObjAnteproyecto.getAtrNombreCodirector(), pObjAnteproyecto.getAtrFechaRegistro(),
-            pObjAnteproyecto.getAtrFechaAprobacion(), pObjAnteproyecto.getAtrConcepto(),
-            pObjAnteproyecto.getAtrEstado(), pObjAnteproyecto.getAtrNumeroRevision()
+            pObjAnteproyecto.atrModalidad, pObjAnteproyecto.atrTitulo,
+            pObjAnteproyecto.atrCodigo, pObjAnteproyecto.atrIdEstudiante1,
+            pObjAnteproyecto.atrIdEstudiante1, pObjAnteproyecto.atrIdEstudiante2,
+            pObjAnteproyecto.atrIdCodirector, pObjAnteproyecto.atrFechaRegistro,
+            pObjAnteproyecto.atrFechaAprobacion, pObjAnteproyecto.atrConcepto,
+            pObjAnteproyecto.atrEstado, pObjAnteproyecto.atrNumeroRevision
         };
         this.modeloDatosAnteproyecto.addRow(objDatosAnteproyecto);
     }
@@ -1683,44 +1688,44 @@ public final class InterfazAdministrador extends javax.swing.JFrame {
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(InterfazEstudianteDirector.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(InterfazEstudianteDirector.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(InterfazEstudianteDirector.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(InterfazEstudianteDirector.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                try {
-                    new InterfazAdministrador().setVisible(true);
-                } catch (RemoteException ex) {
-                    Logger.getLogger(InterfazAdministrador.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (IOException ex) {
-                    Logger.getLogger(InterfazAdministrador.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-        });
-    }
+//    public static void main(String args[]) {
+//        /* Set the Nimbus look and feel */
+//        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+//        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+//         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+//         */
+//        try {
+//            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+//                if ("Nimbus".equals(info.getName())) {
+//                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+//                    break;
+//                }
+//            }
+//        } catch (ClassNotFoundException ex) {
+//            java.util.logging.Logger.getLogger(InterfazEstudianteDirector.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//        } catch (InstantiationException ex) {
+//            java.util.logging.Logger.getLogger(InterfazEstudianteDirector.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//        } catch (IllegalAccessException ex) {
+//            java.util.logging.Logger.getLogger(InterfazEstudianteDirector.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+//            java.util.logging.Logger.getLogger(InterfazEstudianteDirector.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//        }
+//        //</editor-fold>
+//        //</editor-fold>
+//
+//        /* Create and display the form */
+//        java.awt.EventQueue.invokeLater(new Runnable() {
+//            public void run() {
+//                try {
+//                    new InterfazAdministrador().setVisible(true);
+//                } catch (RemoteException ex) {
+//                    Logger.getLogger(InterfazAdministrador.class.getName()).log(Level.SEVERE, null, ex);
+//                } catch (IOException ex) {
+//                    Logger.getLogger(InterfazAdministrador.class.getName()).log(Level.SEVERE, null, ex);
+//                }
+//            }
+//        });
+//    }
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

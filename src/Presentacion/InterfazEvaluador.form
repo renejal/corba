@@ -80,7 +80,7 @@
                   <Group type="102" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="pnlInfoBuscarAnteproyecto" alignment="0" pref="932" max="32767" attributes="0"/>
+                          <Component id="pnlInfoBuscarAnteproyecto" alignment="0" pref="943" max="32767" attributes="0"/>
                           <Component id="panelCodigoTituloAnteproyectos" alignment="1" max="32767" attributes="0"/>
                           <Component id="pnlCodigoAnteproyecto" alignment="0" max="32767" attributes="0"/>
                           <Component id="pnlMostrarDatosAnteproyectos" alignment="0" pref="932" max="32767" attributes="0"/>
@@ -136,7 +136,7 @@
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="1" attributes="0">
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="lblInfoBuscarAnteproyecto" pref="34" max="32767" attributes="0"/>
+                          <Component id="lblInfoBuscarAnteproyecto" pref="44" max="32767" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
                   </Group>
@@ -357,7 +357,7 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Component id="pnlDatosIngresarConcepto" alignment="0" max="32767" attributes="0"/>
-                          <Component id="pnlInfoIngresarConcepto" alignment="0" pref="932" max="32767" attributes="0"/>
+                          <Component id="pnlInfoIngresarConcepto" alignment="0" pref="943" max="32767" attributes="0"/>
                           <Group type="102" alignment="1" attributes="0">
                               <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                               <Component id="btnGuardarI" min="-2" max="-2" attributes="0"/>
@@ -420,7 +420,7 @@
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="1" attributes="0">
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="lblInfoIngresarConcepto" pref="34" max="32767" attributes="0"/>
+                          <Component id="lblInfoIngresarConcepto" pref="44" max="32767" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
                   </Group>
@@ -649,7 +649,7 @@
                   <Group type="102" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="pnlInfoListarAnteproyectos" pref="932" max="32767" attributes="0"/>
+                          <Component id="pnlInfoListarAnteproyectos" pref="943" max="32767" attributes="0"/>
                           <Component id="pnlListadoAnteproyectos" alignment="1" max="32767" attributes="0"/>
                           <Group type="102" alignment="1" attributes="0">
                               <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
@@ -699,7 +699,7 @@
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="1" attributes="0">
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="lblInfoListarAnteproyectos" pref="34" max="32767" attributes="0"/>
+                          <Component id="lblInfoListarAnteproyectos" pref="44" max="32767" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
                   </Group>

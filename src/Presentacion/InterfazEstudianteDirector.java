@@ -15,9 +15,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
-import sop_rmi.AnteproyectoDTO;
-import sop_rmi.clsEstudianteDirector;
-import sop_rmi.interfazEstudianteDirector;
+import sop_corba.*;
+//import sop_corba.clsEstudianteDirector;
+//import sop_corba.interfazEstudianteDirector;
 
 /**
  *
@@ -28,7 +28,7 @@ public class InterfazEstudianteDirector extends javax.swing.JFrame {
     /**
      * Creates new form MenuEstudiante
      */
-    
+    static interfazEstudiantesDirectorOperations ref_estudiantes;
     DefaultTableModel modeloTablaCodigoTitulo;
     DefaultTableModel modeloDatosAnteproyectoB;
     DefaultTableModel modeloDatosAnteproyectoL;
@@ -39,7 +39,7 @@ public class InterfazEstudianteDirector extends javax.swing.JFrame {
     String nombreColumnasCodigoTitutlo[] = {"CÓDIGO", "TITULO"};
     String rutaAnteproyecto = "src/Datos/anteProyectos.txt";
     String rutaAnteproyectoCodigoTitulo = "src/Datos/infoAnteproyectosCodigoTitulo.txt";
-    interfazEstudianteDirector objEstudianteDirector = null;
+   // interfazEstudianteDirector objEstudianteDirector = null;
     
     public InterfazEstudianteDirector() throws RemoteException {
         this.modeloTablaCodigoTitulo = new DefaultTableModel();        
@@ -47,7 +47,7 @@ public class InterfazEstudianteDirector extends javax.swing.JFrame {
         this.modeloDatosAnteproyectoL = new DefaultTableModel();
         initComponents();
         this.lblInfoResultado1.setVisible(false);
-        objEstudianteDirector = new clsEstudianteDirector();
+        //objEstudianteDirector = new clsEstudianteDirector();
     }
     
     public void cargarInfoAnteproyectos(DefaultTableModel parModelo, String ruta, int nroColumnas, String[] vectorColumnas) 
@@ -75,11 +75,14 @@ public class InterfazEstudianteDirector extends javax.swing.JFrame {
         }
         b.close();   
     }
+    public void iniRef(interfazEstudiantesDirectorOperations ref){
+         interfazEstudiantesDirectorOperations ref_estudiantes = ref;
+    }
     private void buscarAnteproyecto() throws RemoteException{
         boolean resultado = false;
         int codigoAnteproyecto = Integer.parseInt(this.jtfCodigoAB.getText());
-        AnteproyectoDTO objAnteproyecto = this.objEstudianteDirector.buscarAnteproyecto(codigoAnteproyecto);
-        System.out.println("codigo desla la interfaz: "+ objAnteproyecto.getAtrCodigo());
+        anteproyectoDTO objAnteproyecto = this.ref_estudiantes.buscarAnteproyecto(codigoAnteproyecto);
+        System.out.println("codigo desla la interfaz: "+ objAnteproyecto.atrCodigo);
         if(objAnteproyecto != null){
             this.mostrarDatosEnTabla(objAnteproyecto);
             resultado = true;
@@ -103,15 +106,15 @@ public class InterfazEstudianteDirector extends javax.swing.JFrame {
         }
         return resultado;
     }
-        private void mostrarDatosEnTabla(AnteproyectoDTO pObjAnteproyecto) {
+        private void mostrarDatosEnTabla(anteproyectoDTO pObjAnteproyecto) {
         Object[] objDatosAnteproyecto;
         objDatosAnteproyecto = new Object[]{
-            pObjAnteproyecto.getAtrModalidad(), pObjAnteproyecto.getAtrTitulo(),
-            pObjAnteproyecto.getAtrCodigo(), pObjAnteproyecto.getAtrNombreEstudiante1(),
-            pObjAnteproyecto.getAtrNombreEstudiante2(), pObjAnteproyecto.getAtrNombreDirector(),
-            pObjAnteproyecto.getAtrNombreCodirector(), pObjAnteproyecto.getAtrFechaRegistro(),
-            pObjAnteproyecto.getAtrFechaAprobacion(), pObjAnteproyecto.getAtrConcepto(),
-            pObjAnteproyecto.getAtrEstado(), pObjAnteproyecto.getAtrNumeroRevision()
+            pObjAnteproyecto.atrModalidad, pObjAnteproyecto.atrTitulo,
+            pObjAnteproyecto.atrCodigo, pObjAnteproyecto.atrIdEstudiante1,
+            pObjAnteproyecto.atrIdEstudiante2, pObjAnteproyecto.atrIdCodirector,
+            pObjAnteproyecto.atrIdCodirector, pObjAnteproyecto.atrFechaRegistro,
+            pObjAnteproyecto.atrFechaAprobacion, pObjAnteproyecto.atrConcepto,
+            pObjAnteproyecto.atrEstado, pObjAnteproyecto.atrNumeroRevision
         };
         this.modeloDatosAnteproyectoB.addRow(objDatosAnteproyecto);
     }
