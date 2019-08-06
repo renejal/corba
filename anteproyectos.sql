@@ -7,7 +7,7 @@ create table ANTEPROYECTO
    ID_ANTEPROYECTO      varchar(30) not null,
    TITULO               varchar(50) not null,
    MODALIDAD            varchar(30) not null,
-   ESTADO               varchar(30) default 'no aprobado',
+   ESTADO               numeric(8,0) default 1,
    FECHAREGISTRO        varchar(20) not null,
    FECHAAPROBACION      varchar(20),
    CONCEPTO             numeric(8,0) default 2,
