@@ -20,7 +20,7 @@ public class jefeDepartamentoImp extends interfazJefeDepartamentoPOA {
     @Override
     public boolean modificarEstadoAnteproyecto(int parCodigo, int parEstado) {
          System.out.println("modificadno estado del protecto con codigo: "+parCodigo + "a estado :" +parEstado);
-           anteproyectoDAO objAnteproyectoDAO = new anteproyectoDAO();
+           ///anteproyectoDAO objAnteproyectoDAO = new anteproyectoDAO();
            //objAnteproyectoDAO.
     return true;        
     }

@@ -1,7 +1,9 @@
 package Datos;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import sop_corba.anteproyectoDTO;
 
 public class anteproyectoDAO {
@@ -9,8 +11,7 @@ public class anteproyectoDAO {
      public anteproyectoDAO(){
         conexionABaseDeDatos = new ConexionBD();
 }
-     public boolean registrarAnteproyecto(anteproyectoDTO  parUsuario) 
-    {
+    public boolean registrarAnteproyecto(anteproyectoDTO  parUsuario){
        System.out.println("codigo usuario-DAO: "+parUsuario.atrCodigo);
         conexionABaseDeDatos.conectar();
         int resultado = -1;
@@ -75,7 +76,75 @@ public class anteproyectoDAO {
         } catch (SQLException e) {
                   System.out.println("error en la inserción: "+e.getMessage());         
         }
-        
         return resultado == 1;
     }
+    public ArrayList<anteproyectoDTO> listarAnteproyectos(){
+         System.out.println("buscando en la base de datos");
+         anteproyectoDTO objAnteproyecto=null;
+         ArrayList<anteproyectoDTO> varVector  = new ArrayList();
+        conexionABaseDeDatos.conectar();        
+        try {            
+            PreparedStatement sentencia = null;
+            String consulta = "select * from anteproyecto";
+            sentencia = conexionABaseDeDatos.getConnection().prepareStatement(consulta); 
+            
+            ResultSet res = sentencia.executeQuery();
+            while(res.next()){
+                      
+                objAnteproyecto= new anteproyectoDTO();
+                objAnteproyecto.atrCodigo = (res.getInt("id_anteproyecto"));
+                objAnteproyecto.atrTitulo =(res.getString("titulo"));
+                objAnteproyecto.atrModalidad = (res.getString("modalidad"));
+                objAnteproyecto.atrEstado = (res.getInt("estado"));
+                objAnteproyecto.atrFechaRegistro = (res.getString("fecharegistro"));
+                objAnteproyecto.atrFechaAprobacion =(res.getString("fechaaprobacion"));
+                objAnteproyecto.atrConcepto = (res.getInt("concepto"));
+                varVector.add(objAnteproyecto);
+                
+            }
+            System.out.println("hola"+objAnteproyecto.atrConcepto);
+            sentencia.close();
+            conexionABaseDeDatos.desconectar();
+
+        } catch (SQLException e) {
+                  System.out.println("error en la consulta de un empleado: "+e.getMessage());         
+        }
+        
+        return varVector;
+    }
+    public anteproyectoDTO buscarAnteproyecto(int parCodigo){
+        System.out.println("buscando en la base de datos");
+        anteproyectoDTO objAnteproyecto=null;
+ 
+        conexionABaseDeDatos.conectar();        
+        try {            
+            PreparedStatement sentencia = null;
+            String consulta = "select * from anteproyecto WHERE anteproyecto.ID_ANTEPROYECTO = ?";
+            sentencia = conexionABaseDeDatos.getConnection().prepareStatement(consulta); 
+            sentencia.setInt(1, parCodigo);
+            ResultSet res = sentencia.executeQuery();
+             objAnteproyecto= new anteproyectoDTO();
+            while(res.next()){
+                      
+               
+                objAnteproyecto.atrCodigo = (res.getInt("id_anteproyecto"));
+                objAnteproyecto.atrTitulo =(res.getString("titulo"));
+                objAnteproyecto.atrModalidad = (res.getString("modalidad"));
+                objAnteproyecto.atrEstado = (res.getInt("estado"));
+                objAnteproyecto.atrFechaRegistro = (res.getString("fecharegistro"));
+                objAnteproyecto.atrFechaAprobacion =(res.getString("fechaaprobacion"));
+                objAnteproyecto.atrConcepto = (res.getInt("concepto"));
+                
+                
+            }
+            System.out.println("hola"+objAnteproyecto.atrConcepto);
+            sentencia.close();
+            conexionABaseDeDatos.desconectar();
+
+        } catch (SQLException e) {
+                  System.out.println("error en la consulta de un empleado: "+e.getMessage());         
+        }
+        
+        return objAnteproyecto;
+    } 
 }

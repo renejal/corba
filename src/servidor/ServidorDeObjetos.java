@@ -71,8 +71,23 @@ public class ServidorDeObjetos {
       NameComponent path3[] = ncrefEvaludor.to_name( nameEvaluador );
       ncref.rebind(path3, hrefEvaluador);
       
+      //>>>>>>>>>>>>>>>>>>>>>>>>>>>>para interfaz estudiantes >>>>>>>>>>>>>>>>>>>>>
+      EstudianteImp convrefEstudiante= new EstudianteImp();
+     
+       org.omg.CORBA.Object objLisEstudiantes = rootpoa.servant_to_reference(convrefEstudiante);
+      interfazEstudiantesDirector hrefEstudiante = interfazEstudiantesDirectorHelper.narrow(objLisEstudiantes);
       
-     System.out.println("El Servidor esta listo y esperandosh ...");
+      org.omg.CORBA.Object objrefEstudiante =
+          orb.resolve_initial_references("NameService");
+      
+       NamingContextExt ncrefEstudiantes = NamingContextExtHelper.narrow(objrefEstudiante);
+      
+      String nameEstudiante = "serviciosEstudianes";
+      NameComponent path4[] = ncrefEstudiantes.to_name( nameEstudiante );
+      ncref.rebind(path4, hrefEstudiante);
+      
+      
+        System.out.println("El Servidor esta listo y esperandosh ...");
       orb.run();
       
     } 

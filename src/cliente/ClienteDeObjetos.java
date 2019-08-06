@@ -11,6 +11,7 @@ public class ClienteDeObjetos{
     static interfazJefeDepartamentoOperations ref_servicios_jefe;
     static interfazUsuarioOperations ref_servicios_IniciarSesion;
     static interfazEvaluadorOperations ref_asignar_evaluadores;
+    static interfazEstudiantesDirectorOperations ref_estudiantes;
     public static void main(String args[]){
         try{
             // crea e inicia el ORB
@@ -33,7 +34,7 @@ public class ClienteDeObjetos{
             //ref_servicios_jefe.RegistarAnteProyectos(objAnteproyecto);
             //->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>para AsignarEvaluadores>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
             clsAsigEvaluadoresDTO objAsigEvaluadores = new clsAsigEvaluadoresDTO(85, "20", "2", "12/12/12", "21", "2", "12/12/12");
-            ref_servicios_jefe.AsignarEvaluadores(objAsigEvaluadores);
+            //ref_servicios_jefe.AsignarEvaluadores(objAsigEvaluadores);
             //->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>para iniciar sesion>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
              org.omg.CORBA.Object objRefIniciarSesion = orb.resolve_initial_references("NameService");
             NamingContextExt ncRefIniciarSesion = NamingContextExtHelper.narrow(objRefIniciarSesion);
@@ -45,11 +46,13 @@ public class ClienteDeObjetos{
             NamingContextExt ncRefAsignarEvaluadores = NamingContextExtHelper.narrow(objRefAsignarEvaluadores);
               ref_asignar_evaluadores = interfazEvaluadorHelper.narrow(ncRefAsignarEvaluadores.resolve_str("serviciosEvaluador"));
               //ref_asignar_evaluadores.ingresarConceptoEvaluador(3,85,1);
-            //>>>>>>>>>>>>>>>>>>>>>>>>>>>modificar concepto>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-            
-            
-            
-            
+            //>>>>>>>>>>>>>>>>>>>>>>>>>>>listarAnteproyectos>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+             org.omg.CORBA.Object objRefListAnteproyectos = orb.resolve_initial_references("NameService");
+            NamingContextExt ncRefListaAnteproyectos = NamingContextExtHelper.narrow(objRefListAnteproyectos);
+              ref_estudiantes = interfazEstudiantesDirectorHelper.narrow(ncRefListaAnteproyectos.resolve_str("serviciosEstudianes"));
+              ref_estudiantes.listarAnteProyectos();
+                    
+             
             
             }catch (Exception e) {
           System.out.println("ERROR : " + e) ;
