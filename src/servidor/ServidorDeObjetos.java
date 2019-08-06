@@ -72,7 +72,7 @@ public class ServidorDeObjetos {
       ncref.rebind(path3, hrefEvaluador);
       
       //>>>>>>>>>>>>>>>>>>>>>>>>>>>>para interfaz estudiantes >>>>>>>>>>>>>>>>>>>>>
-      EstudianteImp convrefEstudiante= new EstudianteImp();
+      estudianteImp convrefEstudiante= new estudianteImp();
      
        org.omg.CORBA.Object objLisEstudiantes = rootpoa.servant_to_reference(convrefEstudiante);
       interfazEstudiantesDirector hrefEstudiante = interfazEstudiantesDirectorHelper.narrow(objLisEstudiantes);

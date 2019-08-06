@@ -10,7 +10,7 @@ public class evaluadorImp extends interfazEvaluadorPOA {
     public boolean ingresarConceptoEvaluador(int idUsuario, int parCodigoAnteproyecto, int parConcepto) {
         System.out.println("igresando concepto al proyecto");
         evaluadorDAO obj = new evaluadorDAO();
-        return obj.ingresarComcepto(idUsuario, parCodigoAnteproyecto, parConcepto);
+        return obj.ingresarCocepto(idUsuario, parCodigoAnteproyecto, parConcepto);
         
     }
 

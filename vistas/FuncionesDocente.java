@@ -1,0 +1,802 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package cliente.vistas;
+
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import servidor.dto.AnteproyectoDTO;
+import servidor.sop_corba.clsEstudianteDirector;
+import servidor.sop_corba.clsEvaluador;
+import servidor.sop_corba.interfazEstudianteDirector;
+import servidor.sop_corba.interfazEvaluador;
+
+/**
+ *
+ * @author Angélica
+ */
+public class FuncionesDocente extends javax.swing.JFrame {
+
+    /**
+     * Creates new form FuncionesDocente
+    
+    */
+    Login objInterfazLogin = null;
+    
+    DefaultTableModel modeloTablaCodigoTitulo;
+    DefaultTableModel modeloDatosAnteproyectoB;
+    DefaultTableModel modeloDatosAnteproyectoL;
+    
+    String[] nombreCamposAnteproyecto = {"CÓDIGO", "TITULO", "ESTUDIANTE 1", 
+                                           "ESTUDIANTE 2", "EVALUADOR 1", "EVALUADOR 2",
+                                           "FECHA DE REVISIÓN", "CONCEPTO", "ESTADO"};
+    String[] camposBasicosAnteproyecto = {"CÓDIGO", "TITULO"};
+    
+    String rutaAnteproyecto = "src/cliente/utilidades/archivos/anteProyectos.txt";
+    String rutaAnteproyectoCodigoTitulo = "src/cliente/utilidades/archivos/infoAnteproyectosCodigoTitulo.txt";
+    
+    String direccionIpRMIRegistry = "localhost";
+    int numPuertoRMIRegistry = 3032;
+    
+    interfazEvaluador objEvaluador = null;
+    interfazEstudianteDirector objEstudianteDirector = null;
+    
+    
+    public FuncionesDocente() throws RemoteException {
+        this.modeloTablaCodigoTitulo = new DefaultTableModel();        
+        this.modeloDatosAnteproyectoB = new DefaultTableModel();
+        this.modeloDatosAnteproyectoL = new DefaultTableModel();
+        agregarColumnasAModelo(modeloTablaCodigoTitulo, 2, camposBasicosAnteproyecto);
+        agregarColumnasAModelo(modeloDatosAnteproyectoB, 9, nombreCamposAnteproyecto);
+        agregarColumnasAModelo(modeloDatosAnteproyectoL, 9, camposBasicosAnteproyecto);
+        initComponents();
+        this.lblInfoResultado1.setVisible(false);
+        this.objEvaluador = new clsEvaluador();
+        objEstudianteDirector = new clsEstudianteDirector();
+    }
+    
+    public void agregarColumnasAModelo(DefaultTableModel parModelo, int nroColumnas, String[] vectorColumnas){
+            for(int j = 0; j<nroColumnas; j++){
+            parModelo.addColumn(vectorColumnas[j]);
+        }
+    }
+    
+    public void cargarInfoAnteproyectos(DefaultTableModel parModelo, String ruta, int nroColumnas, String[] vectorColumnas) 
+                                        throws FileNotFoundException, IOException {
+        int i = 0;
+        String linea = "";
+        ArrayList<String> varColAnteproyectos = new ArrayList<>();
+        Object[] LineaAnteproyecto = new Object[nroColumnas];
+        FileReader f = new FileReader(ruta);
+        BufferedReader b = new BufferedReader(f);
+        while(( linea = b.readLine() ) != null) {
+            varColAnteproyectos.add(linea);
+            System.out.println(varColAnteproyectos.get(i));
+            for(String objLineaAnteproyecto : varColAnteproyectos){
+                LineaAnteproyecto = objLineaAnteproyecto.split(";");
+            }
+            parModelo.addRow(LineaAnteproyecto);
+            i++;
+        }
+        if(varColAnteproyectos.isEmpty()){
+            System.out.println("Archivo Vacio");
+        }
+        b.close();   
+    }
+    
+    public void ingresarConcepto() throws RemoteException{
+        boolean resultado = false;
+        int codigoAnteproyecto = Integer.parseInt(this.jtfCodigoAI.getText());
+        String cadenaConcepto = this.cbConceptosI.getSelectedItem().toString().trim();
+        int concepto = Integer.parseInt("" +cadenaConcepto.charAt(0));
+        resultado = this.objEvaluador.ingresarConcepto(codigoAnteproyecto, concepto);
+        this.mostrarResultadoDeIngresarConcepto(resultado, codigoAnteproyecto);
+    }
+    public void mostrarResultadoDeIngresarConcepto(boolean pResultado, int pCodigoAnteproyecto){
+        this.lblInfoResultado1.setVisible(true);
+        if(pResultado){
+            this.lblInfoResultado1.setText("EXITO. Se ingresó el concepto al anteproyecto : " + pCodigoAnteproyecto + ".");
+            this.lblInfoResultado1.setVisible(true);
+        }else{
+            this.lblInfoResultado1.setText("FALLO. No se ingresó el concepto al anteproyecto: " + pCodigoAnteproyecto + ".");
+            this.lblInfoResultado1.setVisible(true);
+        }
+    }
+    public void limpiarCamposEnIngresarConcepto(){
+        this.jtfCodigoAI.setText("");
+        this.cbConceptosI.setSelectedIndex(1);
+    }
+    public boolean hayCamposVaciosEnIngresarConcepto(){
+        boolean resultado = false;
+        if(this.jtfCodigoAI.getText().isEmpty()){
+            JOptionPane.showMessageDialog(null, "Por favor seleccione o ingrese el código del anteproyecto.");
+            resultado = true;
+        }
+        return resultado;
+    }
+    private void buscarAnteproyecto() throws RemoteException{
+        boolean resultado = false;
+        int codigoAnteproyecto = Integer.parseInt(this.jtfCodigoAB.getText());
+        AnteproyectoDTO objAnteproyecto = this.objEstudianteDirector.buscarAnteproyecto(codigoAnteproyecto);
+        if(objAnteproyecto != null){
+            this.mostrarDatosEnTabla(objAnteproyecto);
+            resultado = true;
+        }
+        mostrarResultadoDeBuscar(resultado, codigoAnteproyecto);
+    }
+    private void mostrarResultadoDeBuscar(boolean pResultado, int pCodigoAnteproyecto) {
+        if(pResultado){
+            this.lblInfoResultado2.setText("EXITO. Anteproyecto encontrado con código: " + pCodigoAnteproyecto + ".");
+            this.lblInfoResultado2.setVisible(true);
+        }else{
+            this.lblInfoResultado2.setText("FALLO. No se encontró el anteproyecto con código: " + pCodigoAnteproyecto + ".");
+            this.lblInfoResultado2.setVisible(true);
+        }
+    }
+    public boolean hayCamposVaciosEnBuscarAnteproyecto(){
+        boolean resultado = false;
+        if(this.jtfCodigoAB.getText().isEmpty()){
+            JOptionPane.showMessageDialog(null, "Por favor ingrese o seleccione un código.");
+            resultado = true;
+        }
+        return resultado;
+    }
+    private void mostrarDatosEnTabla(AnteproyectoDTO pObjAnteproyecto) {
+        Object[] objDatosAnteproyecto;
+        objDatosAnteproyecto = new Object[]{
+            pObjAnteproyecto.getAtrModalidad(), pObjAnteproyecto.getAtrTitulo(),
+            pObjAnteproyecto.getAtrCodigo(), pObjAnteproyecto.getAtrNombreEstudiante1(),
+            pObjAnteproyecto.getAtrNombreEstudiante2(), pObjAnteproyecto.getAtrNombreDirector(),
+            pObjAnteproyecto.getAtrNombreCodirector(), pObjAnteproyecto.getAtrFechaRegistro(),
+            pObjAnteproyecto.getAtrFechaAprobacion(), pObjAnteproyecto.getAtrConcepto(),
+            pObjAnteproyecto.getAtrEstado(), pObjAnteproyecto.getAtrNumeroRevision()
+        };
+        this.modeloDatosAnteproyectoB.addRow(objDatosAnteproyecto);
+    }
+    private void abrirVentanaLogin(){
+         try {
+            this.objInterfazLogin = new InterfazIniciarSesion();
+        } catch (RemoteException ex) {
+            Logger.getLogger(FuncionesAdministrador.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        this.setVisible(false);
+        this.dispose();
+        this.objInterfazLogin.setVisible(true);
+    }
+    
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        pnlFormulariosEvaluador = new javax.swing.JTabbedPane();
+        pnlBuscarAnteproyecto = new javax.swing.JPanel();
+        pnlMostrarDatosAnteproyectos = new javax.swing.JScrollPane();
+        tblDatosAnteproyectos = new javax.swing.JTable();
+        panelCodigoTituloAnteproyectos = new javax.swing.JScrollPane();
+        tblCodigoTituloAnteproyectos = new javax.swing.JTable();
+        pnlInfoBuscarAnteproyecto = new javax.swing.JPanel();
+        lblInfoBuscarAnteproyecto = new javax.swing.JLabel();
+        pnlInfoResultado3 = new javax.swing.JPanel();
+        lblInfoResultado3 = new javax.swing.JLabel();
+        pnlCodigoAnteproyecto = new javax.swing.JPanel();
+        lblCodigoAB = new javax.swing.JLabel();
+        jtfCodigoAB = new javax.swing.JTextField();
+        btnBuscar = new javax.swing.JButton();
+        btnVerCodigosB = new javax.swing.JButton();
+        pnlFormularioIngresarConcepto = new javax.swing.JPanel();
+        pnlInfoIngresarConcepto = new javax.swing.JPanel();
+        lblInfoIngresarConcepto = new javax.swing.JLabel();
+        pnlDatosIngresarConcepto = new javax.swing.JPanel();
+        lblCodigoAI = new javax.swing.JLabel();
+        jtfCodigoAI = new javax.swing.JTextField();
+        lblInfoConceptoI = new javax.swing.JLabel();
+        cbConceptosI = new javax.swing.JComboBox<>();
+        btnVerCodigosAI = new javax.swing.JButton();
+        btnGuardarI = new javax.swing.JButton();
+        btnCancelarI = new javax.swing.JButton();
+        pnlCodigoTituloAntI = new javax.swing.JScrollPane();
+        tblCodigoTituloAnteproyectosI = new javax.swing.JTable();
+        pnlInfoResultado1 = new javax.swing.JPanel();
+        lblInfoResultado1 = new javax.swing.JLabel();
+        pnlListarAnteproyectos = new javax.swing.JPanel();
+        pnlInfoListarAnteproyectos = new javax.swing.JPanel();
+        lblInfoListarAnteproyectos = new javax.swing.JLabel();
+        pnlListadoAnteproyectos = new javax.swing.JScrollPane();
+        tblListadoAnteproyectos = new javax.swing.JTable();
+        btnListar = new javax.swing.JButton();
+        jPanel6 = new javax.swing.JPanel();
+        btnCerrarSesionE = new javax.swing.JButton();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Sistema Anteproyectos");
+
+        pnlFormulariosEvaluador.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Opciones Evaluador", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 13), new java.awt.Color(0, 0, 153))); // NOI18N
+        pnlFormulariosEvaluador.setForeground(new java.awt.Color(0, 0, 153));
+        pnlFormulariosEvaluador.setTabLayoutPolicy(javax.swing.JTabbedPane.SCROLL_TAB_LAYOUT);
+        pnlFormulariosEvaluador.setTabPlacement(javax.swing.JTabbedPane.LEFT);
+        pnlFormulariosEvaluador.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        pnlFormulariosEvaluador.setMinimumSize(new java.awt.Dimension(140, 23));
+        pnlFormulariosEvaluador.setName(""); // NOI18N
+        pnlFormulariosEvaluador.setPreferredSize(new java.awt.Dimension(1120, 575));
+
+        pnlBuscarAnteproyecto.setEnabled(false);
+
+        pnlMostrarDatosAnteproyectos.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Datos del anteproyecto", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 13), new java.awt.Color(0, 0, 153))); // NOI18N
+
+        tblDatosAnteproyectos.setModel(modeloBuscarListarDatos);
+        pnlMostrarDatosAnteproyectos.setViewportView(tblDatosAnteproyectos);
+
+        panelCodigoTituloAnteproyectos.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
+
+        tblCodigoTituloAnteproyectos.setModel(modeloVerCodigoTitulo);
+        tblCodigoTituloAnteproyectos.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                tblCodigoTituloAnteproyectosMousePressed(evt);
+            }
+        });
+        panelCodigoTituloAnteproyectos.setViewportView(tblCodigoTituloAnteproyectos);
+
+        pnlInfoBuscarAnteproyecto.setBackground(new java.awt.Color(102, 153, 255));
+        pnlInfoBuscarAnteproyecto.setPreferredSize(new java.awt.Dimension(186, 56));
+
+        lblInfoBuscarAnteproyecto.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        lblInfoBuscarAnteproyecto.setForeground(new java.awt.Color(255, 255, 255));
+        lblInfoBuscarAnteproyecto.setText("Buscar Anteproyecto");
+        lblInfoBuscarAnteproyecto.setMaximumSize(new java.awt.Dimension(158, 22));
+        lblInfoBuscarAnteproyecto.setMinimumSize(new java.awt.Dimension(158, 22));
+        lblInfoBuscarAnteproyecto.setPreferredSize(new java.awt.Dimension(158, 22));
+
+        javax.swing.GroupLayout pnlInfoBuscarAnteproyectoLayout = new javax.swing.GroupLayout(pnlInfoBuscarAnteproyecto);
+        pnlInfoBuscarAnteproyecto.setLayout(pnlInfoBuscarAnteproyectoLayout);
+        pnlInfoBuscarAnteproyectoLayout.setHorizontalGroup(
+            pnlInfoBuscarAnteproyectoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlInfoBuscarAnteproyectoLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblInfoBuscarAnteproyecto, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        pnlInfoBuscarAnteproyectoLayout.setVerticalGroup(
+            pnlInfoBuscarAnteproyectoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlInfoBuscarAnteproyectoLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblInfoBuscarAnteproyecto, javax.swing.GroupLayout.DEFAULT_SIZE, 34, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
+        lblInfoResultado3.setFont(new java.awt.Font("Tahoma", 1, 13)); // NOI18N
+        lblInfoResultado3.setForeground(new java.awt.Color(0, 0, 153));
+        lblInfoResultado3.setText("Mensaje con el resultado de la operación");
+
+        javax.swing.GroupLayout pnlInfoResultado3Layout = new javax.swing.GroupLayout(pnlInfoResultado3);
+        pnlInfoResultado3.setLayout(pnlInfoResultado3Layout);
+        pnlInfoResultado3Layout.setHorizontalGroup(
+            pnlInfoResultado3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlInfoResultado3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblInfoResultado3, javax.swing.GroupLayout.PREFERRED_SIZE, 606, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(58, Short.MAX_VALUE))
+        );
+        pnlInfoResultado3Layout.setVerticalGroup(
+            pnlInfoResultado3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlInfoResultado3Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(lblInfoResultado3, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+
+        pnlCodigoAnteproyecto.setBackground(new java.awt.Color(251, 248, 248));
+        pnlCodigoAnteproyecto.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Ingrese o seleccione un código:", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 13), new java.awt.Color(0, 0, 153))); // NOI18N
+
+        lblCodigoAB.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        lblCodigoAB.setText("Código del anteproyecto");
+
+        btnBuscar.setText("Buscar");
+        btnBuscar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnBuscarActionPerformed(evt);
+            }
+        });
+
+        btnVerCodigosB.setText("Ver códigos");
+        btnVerCodigosB.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnVerCodigosBActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout pnlCodigoAnteproyectoLayout = new javax.swing.GroupLayout(pnlCodigoAnteproyecto);
+        pnlCodigoAnteproyecto.setLayout(pnlCodigoAnteproyectoLayout);
+        pnlCodigoAnteproyectoLayout.setHorizontalGroup(
+            pnlCodigoAnteproyectoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlCodigoAnteproyectoLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblCodigoAB)
+                .addGap(10, 10, 10)
+                .addComponent(jtfCodigoAB, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnBuscar)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnVerCodigosB)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        pnlCodigoAnteproyectoLayout.setVerticalGroup(
+            pnlCodigoAnteproyectoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlCodigoAnteproyectoLayout.createSequentialGroup()
+                .addContainerGap(18, Short.MAX_VALUE)
+                .addGroup(pnlCodigoAnteproyectoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(pnlCodigoAnteproyectoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jtfCodigoAB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(btnBuscar)
+                        .addComponent(btnVerCodigosB))
+                    .addComponent(lblCodigoAB))
+                .addContainerGap())
+        );
+
+        javax.swing.GroupLayout pnlBuscarAnteproyectoLayout = new javax.swing.GroupLayout(pnlBuscarAnteproyecto);
+        pnlBuscarAnteproyecto.setLayout(pnlBuscarAnteproyectoLayout);
+        pnlBuscarAnteproyectoLayout.setHorizontalGroup(
+            pnlBuscarAnteproyectoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlBuscarAnteproyectoLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(pnlBuscarAnteproyectoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(pnlMostrarDatosAnteproyectos)
+                    .addComponent(pnlInfoBuscarAnteproyecto, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 842, Short.MAX_VALUE)
+                    .addComponent(panelCodigoTituloAnteproyectos)
+                    .addComponent(pnlCodigoAnteproyecto, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, pnlBuscarAnteproyectoLayout.createSequentialGroup()
+                        .addComponent(pnlInfoResultado3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 168, Short.MAX_VALUE)))
+                .addContainerGap())
+        );
+        pnlBuscarAnteproyectoLayout.setVerticalGroup(
+            pnlBuscarAnteproyectoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlBuscarAnteproyectoLayout.createSequentialGroup()
+                .addGap(18, 18, 18)
+                .addComponent(pnlInfoBuscarAnteproyecto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(pnlCodigoAnteproyecto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(panelCodigoTituloAnteproyectos, javax.swing.GroupLayout.PREFERRED_SIZE, 124, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(pnlMostrarDatosAnteproyectos, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(pnlInfoResultado3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(40, 40, 40))
+        );
+
+        pnlFormulariosEvaluador.addTab("Buscar un anteproyecto", pnlBuscarAnteproyecto);
+
+        pnlInfoIngresarConcepto.setBackground(new java.awt.Color(102, 153, 255));
+        pnlInfoIngresarConcepto.setPreferredSize(new java.awt.Dimension(186, 56));
+
+        lblInfoIngresarConcepto.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        lblInfoIngresarConcepto.setForeground(new java.awt.Color(255, 255, 255));
+        lblInfoIngresarConcepto.setText("Ingresar Concepto");
+
+        javax.swing.GroupLayout pnlInfoIngresarConceptoLayout = new javax.swing.GroupLayout(pnlInfoIngresarConcepto);
+        pnlInfoIngresarConcepto.setLayout(pnlInfoIngresarConceptoLayout);
+        pnlInfoIngresarConceptoLayout.setHorizontalGroup(
+            pnlInfoIngresarConceptoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlInfoIngresarConceptoLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblInfoIngresarConcepto, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        pnlInfoIngresarConceptoLayout.setVerticalGroup(
+            pnlInfoIngresarConceptoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlInfoIngresarConceptoLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblInfoIngresarConcepto, javax.swing.GroupLayout.DEFAULT_SIZE, 34, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
+        pnlDatosIngresarConcepto.setBackground(new java.awt.Color(251, 248, 248));
+        pnlDatosIngresarConcepto.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Datos para ingresar un concepto", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 13), new java.awt.Color(0, 0, 153))); // NOI18N
+
+        lblCodigoAI.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        lblCodigoAI.setText("Código del anteproyecto");
+
+        lblInfoConceptoI.setFont(new java.awt.Font("Tahoma", 0, 13)); // NOI18N
+        lblInfoConceptoI.setText("Seleccione un concepto");
+
+        cbConceptosI.setFont(new java.awt.Font("Tahoma", 0, 13)); // NOI18N
+        cbConceptosI.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "1. Aprobado", "2. No aprobado" }));
+        cbConceptosI.setSelectedIndex(1);
+        cbConceptosI.setToolTipText("");
+
+        btnVerCodigosAI.setText("Ver códigos");
+        btnVerCodigosAI.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnVerCodigosAIActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout pnlDatosIngresarConceptoLayout = new javax.swing.GroupLayout(pnlDatosIngresarConcepto);
+        pnlDatosIngresarConcepto.setLayout(pnlDatosIngresarConceptoLayout);
+        pnlDatosIngresarConceptoLayout.setHorizontalGroup(
+            pnlDatosIngresarConceptoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlDatosIngresarConceptoLayout.createSequentialGroup()
+                .addGap(86, 86, 86)
+                .addGroup(pnlDatosIngresarConceptoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(lblCodigoAI)
+                    .addComponent(lblInfoConceptoI))
+                .addGap(10, 10, 10)
+                .addGroup(pnlDatosIngresarConceptoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(cbConceptosI, javax.swing.GroupLayout.Alignment.LEADING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jtfCodigoAI, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 160, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnVerCodigosAI)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        pnlDatosIngresarConceptoLayout.setVerticalGroup(
+            pnlDatosIngresarConceptoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlDatosIngresarConceptoLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(pnlDatosIngresarConceptoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(pnlDatosIngresarConceptoLayout.createSequentialGroup()
+                        .addComponent(lblCodigoAI)
+                        .addGap(48, 48, 48)
+                        .addGroup(pnlDatosIngresarConceptoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(lblInfoConceptoI)
+                            .addComponent(cbConceptosI, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(pnlDatosIngresarConceptoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jtfCodigoAI, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(btnVerCodigosAI)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        btnGuardarI.setText("GUARDAR");
+        btnGuardarI.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnGuardarIActionPerformed(evt);
+            }
+        });
+
+        btnCancelarI.setText("CANCELAR");
+        btnCancelarI.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCancelarIActionPerformed(evt);
+            }
+        });
+
+        pnlCodigoTituloAntI.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Seleccione un código:", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 13), new java.awt.Color(0, 0, 153))); // NOI18N
+
+        tblCodigoTituloAnteproyectosI.setModel(modeloTablaCodigoTitulo);
+        tblCodigoTituloAnteproyectosI.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                tblCodigoTituloAnteproyectosIMousePressed(evt);
+            }
+        });
+        pnlCodigoTituloAntI.setViewportView(tblCodigoTituloAnteproyectosI);
+
+        lblInfoResultado1.setFont(new java.awt.Font("Tahoma", 1, 13)); // NOI18N
+        lblInfoResultado1.setForeground(new java.awt.Color(0, 0, 153));
+        lblInfoResultado1.setText("Mensaje con el resultado de la operación");
+
+        javax.swing.GroupLayout pnlInfoResultado1Layout = new javax.swing.GroupLayout(pnlInfoResultado1);
+        pnlInfoResultado1.setLayout(pnlInfoResultado1Layout);
+        pnlInfoResultado1Layout.setHorizontalGroup(
+            pnlInfoResultado1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlInfoResultado1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblInfoResultado1, javax.swing.GroupLayout.DEFAULT_SIZE, 654, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        pnlInfoResultado1Layout.setVerticalGroup(
+            pnlInfoResultado1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlInfoResultado1Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(lblInfoResultado1, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+
+        javax.swing.GroupLayout pnlFormularioIngresarConceptoLayout = new javax.swing.GroupLayout(pnlFormularioIngresarConcepto);
+        pnlFormularioIngresarConcepto.setLayout(pnlFormularioIngresarConceptoLayout);
+        pnlFormularioIngresarConceptoLayout.setHorizontalGroup(
+            pnlFormularioIngresarConceptoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlFormularioIngresarConceptoLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(pnlFormularioIngresarConceptoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(pnlDatosIngresarConcepto, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(pnlInfoIngresarConcepto, javax.swing.GroupLayout.DEFAULT_SIZE, 842, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlFormularioIngresarConceptoLayout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(btnGuardarI)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(btnCancelarI))
+                    .addComponent(pnlCodigoTituloAntI)
+                    .addGroup(pnlFormularioIngresarConceptoLayout.createSequentialGroup()
+                        .addComponent(pnlInfoResultado1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addContainerGap())
+        );
+        pnlFormularioIngresarConceptoLayout.setVerticalGroup(
+            pnlFormularioIngresarConceptoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlFormularioIngresarConceptoLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(pnlInfoIngresarConcepto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(pnlDatosIngresarConcepto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(11, 11, 11)
+                .addComponent(pnlCodigoTituloAntI, javax.swing.GroupLayout.PREFERRED_SIZE, 210, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(pnlInfoResultado1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(pnlFormularioIngresarConceptoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnGuardarI)
+                    .addComponent(btnCancelarI))
+                .addContainerGap())
+        );
+
+        pnlDatosIngresarConcepto.getAccessibleContext().setAccessibleName("Datos para ingresar concepto");
+
+        pnlFormulariosEvaluador.addTab("Ingresar un concepto", pnlFormularioIngresarConcepto);
+
+        pnlInfoListarAnteproyectos.setBackground(new java.awt.Color(102, 153, 255));
+        pnlInfoListarAnteproyectos.setPreferredSize(new java.awt.Dimension(186, 56));
+
+        lblInfoListarAnteproyectos.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        lblInfoListarAnteproyectos.setForeground(new java.awt.Color(255, 255, 255));
+        lblInfoListarAnteproyectos.setText("Listar Anteproyectos");
+
+        javax.swing.GroupLayout pnlInfoListarAnteproyectosLayout = new javax.swing.GroupLayout(pnlInfoListarAnteproyectos);
+        pnlInfoListarAnteproyectos.setLayout(pnlInfoListarAnteproyectosLayout);
+        pnlInfoListarAnteproyectosLayout.setHorizontalGroup(
+            pnlInfoListarAnteproyectosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlInfoListarAnteproyectosLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblInfoListarAnteproyectos, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(652, Short.MAX_VALUE))
+        );
+        pnlInfoListarAnteproyectosLayout.setVerticalGroup(
+            pnlInfoListarAnteproyectosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlInfoListarAnteproyectosLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblInfoListarAnteproyectos, javax.swing.GroupLayout.DEFAULT_SIZE, 34, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
+        pnlListadoAnteproyectos.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Listado de anteproyectos", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 13), new java.awt.Color(0, 0, 153))); // NOI18N
+
+        tblListadoAnteproyectos.setModel(modeloDatosAnteproyectoL);
+        pnlListadoAnteproyectos.setViewportView(tblListadoAnteproyectos);
+
+        btnListar.setText("LISTAR");
+        btnListar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnListarActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout pnlListarAnteproyectosLayout = new javax.swing.GroupLayout(pnlListarAnteproyectos);
+        pnlListarAnteproyectos.setLayout(pnlListarAnteproyectosLayout);
+        pnlListarAnteproyectosLayout.setHorizontalGroup(
+            pnlListarAnteproyectosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlListarAnteproyectosLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(pnlListarAnteproyectosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(pnlInfoListarAnteproyectos, javax.swing.GroupLayout.DEFAULT_SIZE, 842, Short.MAX_VALUE)
+                    .addComponent(pnlListadoAnteproyectos, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlListarAnteproyectosLayout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(btnListar)))
+                .addContainerGap())
+        );
+        pnlListarAnteproyectosLayout.setVerticalGroup(
+            pnlListarAnteproyectosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlListarAnteproyectosLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(pnlInfoListarAnteproyectos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(pnlListadoAnteproyectos, javax.swing.GroupLayout.PREFERRED_SIZE, 346, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 93, Short.MAX_VALUE)
+                .addComponent(btnListar)
+                .addContainerGap())
+        );
+
+        pnlFormulariosEvaluador.addTab("Listar los anteproyectos", pnlListarAnteproyectos);
+
+        btnCerrarSesionE.setText("CERRAR SESIÓN");
+        btnCerrarSesionE.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCerrarSesionEActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
+        jPanel6.setLayout(jPanel6Layout);
+        jPanel6Layout.setHorizontalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createSequentialGroup()
+                .addContainerGap(66, Short.MAX_VALUE)
+                .addComponent(btnCerrarSesionE)
+                .addContainerGap())
+        );
+        jPanel6Layout.setVerticalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createSequentialGroup()
+                .addGap(0, 8, Short.MAX_VALUE)
+                .addComponent(btnCerrarSesionE, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(pnlFormulariosEvaluador, javax.swing.GroupLayout.DEFAULT_SIZE, 1040, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(pnlFormulariosEvaluador, javax.swing.GroupLayout.PREFERRED_SIZE, 575, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void btnVerCodigosAIActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVerCodigosAIActionPerformed
+        try {
+            cargarInfoAnteproyectos(modeloTablaCodigoTitulo, rutaAnteproyectoCodigoTitulo, 2, camposBasicosAnteproyecto);
+        }catch (IOException ex) {
+            Logger.getLogger(FuncionesDocente.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_btnVerCodigosAIActionPerformed
+
+    private void btnGuardarIActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarIActionPerformed
+        if(!hayCamposVaciosEnIngresarConcepto()){
+            try{
+                ingresarConcepto();
+                limpiarCamposEnIngresarConcepto();
+            } catch (RemoteException ex) {
+                Logger.getLogger(FuncionesAdministrador.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }else{
+            JOptionPane.showMessageDialog(null, "Por favor complete todos los campos", "Campos incompletos", JOptionPane.WARNING_MESSAGE);
+        }
+    }//GEN-LAST:event_btnGuardarIActionPerformed
+
+    private void btnCancelarIActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarIActionPerformed
+        limpiarCamposEnIngresarConcepto();
+        this.lblInfoResultado1.setText("");
+    }//GEN-LAST:event_btnCancelarIActionPerformed
+
+    private void tblCodigoTituloAnteproyectosIMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblCodigoTituloAnteproyectosIMousePressed
+        String dato = String.valueOf(this.modeloTablaCodigoTitulo.getValueAt(this.tblCodigoTituloAnteproyectosI.getSelectedRow(),0));
+        limpiarCamposEnIngresarConcepto();
+        System.out.println("DATOO "+ dato);
+        this.jtfCodigoAI.setText(dato);
+        this.lblInfoResultado1.setText("");
+    }//GEN-LAST:event_tblCodigoTituloAnteproyectosIMousePressed
+
+    private void btnListarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnListarActionPerformed
+        try {
+            cargarInfoAnteproyectos(modeloDatosAnteproyectoL, rutaAnteproyecto, 9, nombreCamposAnteproyecto);
+        } catch (IOException ex) {
+            Logger.getLogger(FuncionesAdministrador.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_btnListarActionPerformed
+
+    private void btnCerrarSesionEActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCerrarSesionEActionPerformed
+        abrirVentanaLogin();
+    }//GEN-LAST:event_btnCerrarSesionEActionPerformed
+
+    private void tblCodigoTituloAnteproyectosMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblCodigoTituloAnteproyectosMousePressed
+        String dato = String.valueOf(this.modeloVerCodigoTitulo.getValueAt(this.tblCodigoTituloAnteproyectos.getSelectedRow(),0));
+        this.jtfCodigoAB.setText(dato);
+        this.lblInfoResultado1.setText("");
+    }//GEN-LAST:event_tblCodigoTituloAnteproyectosMousePressed
+
+    private void btnBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarActionPerformed
+        agregarColumnasAModelo(modeloBuscarListarDatos, 9, nombreCamposAnteproyecto);
+        buscarAnteproyecto();
+        this.jtfCodigoAB.setText("");
+    }//GEN-LAST:event_btnBuscarActionPerformed
+
+    private void btnVerCodigosBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVerCodigosBActionPerformed
+        try {
+            cargarInfoAnteproyectos(modeloVerCodigoTitulo, rutaAnteproyectoCodigoTitulo, 2, camposBasicosAnteproyecto);
+        } catch (IOException ex) {
+            Logger.getLogger(FuncionesAdministrador.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_btnVerCodigosBActionPerformed
+
+    /**
+     * @param args the command line arguments
+     */
+//        public static void main(String args[]) {
+//            /* Set the Nimbus look and feel */
+//            //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+//            /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+//             * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+//             */
+//            try {
+//                for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+//                    if ("Nimbus".equals(info.getName())) {
+//                        javax.swing.UIManager.setLookAndFeel(info.getClassName());
+//                        break;
+//                    }
+//                }
+//            } catch (ClassNotFoundException ex) {
+//                java.util.logging.Logger.getLogger(FuncionesDocente.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//            } catch (InstantiationException ex) {
+//                java.util.logging.Logger.getLogger(FuncionesDocente.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//            } catch (IllegalAccessException ex) {
+//                java.util.logging.Logger.getLogger(FuncionesDocente.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//            } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+//                java.util.logging.Logger.getLogger(FuncionesDocente.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//            }
+//            //</editor-fold>
+//    
+//            /* Create and display the form */
+//            java.awt.EventQueue.invokeLater(new Runnable() {
+//                public void run() {
+//                    try {
+//                        new FuncionesDocente().setVisible(true);
+//                    } catch (RemoteException ex) {
+//                        Logger.getLogger(FuncionesDocente.class.getName()).log(Level.SEVERE, null, ex);
+//                    }
+//                }
+//            });
+//        }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnBuscar;
+    private javax.swing.JButton btnCancelarI;
+    private javax.swing.JButton btnCerrarSesionE;
+    private javax.swing.JButton btnGuardarI;
+    private javax.swing.JButton btnListar;
+    private javax.swing.JButton btnVerCodigosAI;
+    private javax.swing.JButton btnVerCodigosB;
+    private javax.swing.JComboBox<String> cbConceptosI;
+    private javax.swing.JPanel jPanel6;
+    private javax.swing.JTextField jtfCodigoAB;
+    private javax.swing.JTextField jtfCodigoAI;
+    private javax.swing.JLabel lblCodigoAB;
+    private javax.swing.JLabel lblCodigoAI;
+    private javax.swing.JLabel lblInfoBuscarAnteproyecto;
+    private javax.swing.JLabel lblInfoConceptoI;
+    private javax.swing.JLabel lblInfoIngresarConcepto;
+    private javax.swing.JLabel lblInfoListarAnteproyectos;
+    private javax.swing.JLabel lblInfoResultado1;
+    private javax.swing.JLabel lblInfoResultado3;
+    private javax.swing.JScrollPane panelCodigoTituloAnteproyectos;
+    private javax.swing.JPanel pnlBuscarAnteproyecto;
+    private javax.swing.JPanel pnlCodigoAnteproyecto;
+    private javax.swing.JScrollPane pnlCodigoTituloAntI;
+    private javax.swing.JPanel pnlDatosIngresarConcepto;
+    private javax.swing.JPanel pnlFormularioIngresarConcepto;
+    private javax.swing.JTabbedPane pnlFormulariosEvaluador;
+    private javax.swing.JPanel pnlInfoBuscarAnteproyecto;
+    private javax.swing.JPanel pnlInfoIngresarConcepto;
+    private javax.swing.JPanel pnlInfoListarAnteproyectos;
+    private javax.swing.JPanel pnlInfoResultado1;
+    private javax.swing.JPanel pnlInfoResultado3;
+    private javax.swing.JScrollPane pnlListadoAnteproyectos;
+    private javax.swing.JPanel pnlListarAnteproyectos;
+    private javax.swing.JScrollPane pnlMostrarDatosAnteproyectos;
+    private javax.swing.JTable tblCodigoTituloAnteproyectos;
+    private javax.swing.JTable tblCodigoTituloAnteproyectosI;
+    private javax.swing.JTable tblDatosAnteproyectos;
+    private javax.swing.JTable tblListadoAnteproyectos;
+    // End of variables declaration//GEN-END:variables
+}
